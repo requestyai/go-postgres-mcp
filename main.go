@@ -126,7 +126,6 @@ func main() {
 		"read_query",
 		mcp.WithDescription("Execute a read-only SQL query with safety checks"),
 		mcp.WithString("query", mcp.Required(), mcp.Description("SQL SELECT query to execute")),
-		mcp.WithNumber("limit", mcp.Description("Maximum rows to return (default: 1000)")),
 	)
 
 	explainQueryTool := mcp.NewTool(
@@ -337,17 +336,11 @@ func main() {
 
 	s.AddTool(readQueryTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		query := getStringParam(request, "query", "")
-		limit := getNumberParam(request, "limit", 1000)
 
 		// Safety check - only allow SELECT queries
 		upperQuery := strings.ToUpper(strings.TrimSpace(query))
 		if !strings.HasPrefix(upperQuery, "SELECT") && !strings.HasPrefix(upperQuery, "WITH") {
 			return mcp.NewToolResultText("Error: Only SELECT queries are allowed"), nil
-		}
-
-		// Add limit if not present
-		if !strings.Contains(upperQuery, "LIMIT") {
-			query = fmt.Sprintf("%s LIMIT %d", query, int(limit))
 		}
 
 		result, err := HandleQuery(query, StatementTypeSelect)
