@@ -1,4 +1,4 @@
-module requesty-go-postgres-mcp
+module github.com/requestyai/go-postgres-mcp
 
 go 1.23.0
 
